@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.ansbeno.spring_security_app.controllers.UserDetailsServiceImpl;
 
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
       private final UserDetailsServiceImpl userDetailsServiceImpl;
+      private final JwtFilter jwtFilter;
 
       @Bean
       SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -29,11 +31,11 @@ public class SecurityConfig {
             http.authorizeHttpRequests(authorize -> {
                   authorize.requestMatchers("/login", "/register")
                               .permitAll();
-                  authorize.requestMatchers("/hello").permitAll();
                   authorize.anyRequest().authenticated();
 
             })
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
             return http.build();
       }
 
