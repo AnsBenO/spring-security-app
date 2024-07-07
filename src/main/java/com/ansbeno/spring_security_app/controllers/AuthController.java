@@ -13,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,10 +44,9 @@ public class AuthController {
                   @Valid @RequestBody RegistrationDto user,
                   BindingResult result) {
 
-            // if (isUserAuthenticated()) {
-            // return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is already
-            // authenticated");
-            // }
+            if (isUserAuthenticated()) {
+                  return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is already authenticated");
+            }
 
             UserEntity existingUser = userService.findByEmail(user.getEmail());
 
@@ -58,5 +60,10 @@ public class AuthController {
 
             userService.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+      }
+
+      private boolean isUserAuthenticated() {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return authentication != null && !(authentication instanceof AnonymousAuthenticationToken);
       }
 }
