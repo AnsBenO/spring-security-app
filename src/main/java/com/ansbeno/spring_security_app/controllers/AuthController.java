@@ -15,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,9 +36,17 @@ public class AuthController {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                         loginDTO.getUsername(),
                         loginDTO.getPassword());
-            authenticationManager.authenticate(token);
-            String jwtToken = jwtUtil.generate(loginDTO.getUsername());
-            return ResponseEntity.ok(jwtToken);
+
+            try {
+                  authenticationManager.authenticate(token);
+                  String jwtToken = jwtUtil.generate(loginDTO.getUsername());
+                  return ResponseEntity.ok(jwtToken);
+            } catch (BadCredentialsException e) {
+                  return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } catch (AuthenticationException e) {
+                  return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .body(e.getMessage());
+            }
       }
 
       @PostMapping("/register")

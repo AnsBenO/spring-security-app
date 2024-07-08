@@ -1,4 +1,4 @@
-package com.ansbeno.spring_security_app.controllers;
+package com.ansbeno.spring_security_app.security;
 
 import java.util.stream.Collectors;
 
@@ -27,9 +27,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                               .map(role -> new SimpleGrantedAuthority(role.getName().toString()))
                               .collect((Collectors.toList())));
             } else { // If the user was not found
-                  throw new UsernameNotFoundException("Invalid Username or Password"); // Throw an exception to indicate
-                                                                                       // that
-                                                                                       // the credentials were invalid
+                  throw new UsernameNotFoundException("Invalid Credentials"); // Throw an exception to indicate
+                                                                              // that
+                                                                              // the credentials were invalid
             }
 
       }
